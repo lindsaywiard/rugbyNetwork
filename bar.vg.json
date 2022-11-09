@@ -1,0 +1,130 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "A basic grouped bar chart example.",
+    "width": 280,
+    "height": 280,
+    "padding": 5,
+  
+    "data": [
+      {
+        "name": "table",
+        "values": [
+          {"category":"Games Played", "position":0, "value":4, "Country":"Argentina", "Proportion": "4%"},
+          {"category":"Games Played", "position":1, "value":36, "Country":"Australia", "Proportion": "36%"},
+          {"category":"Games Played", "position":2, "value":88, "Country":"New Zealand", "Proportion": "88%"},
+          {"category":"Games Played", "position":3, "value":36, "Country":"South Africa", "Proportion": "36%"},
+          {"category":"Wins", "position":0, "value":0, "Country":"Argentina", "Proportion": "0%"},
+          {"category":"Wins", "position":1, "value":16, "Country":"Australia", "Proportion": "16%"},
+          {"category":"Wins", "position":2, "value":72, "Country":"New Zealand", "Proportion": "72%"},
+          {"category":"Wins", "position":3, "value":12, "Country":"South Africa", "Proportion": "12%"}
+        ]
+      }
+    ],
+  
+    "scales": [
+      {
+        "name": "xscale",
+        "type": "band",
+        "domain": {"data": "table", "field": "category"},
+        "range": "width",
+        "padding": 0.2
+      },
+      {
+        "name": "yscale",
+        "type": "linear",
+        "domain": {"data": "table", "field": "value"},
+        "range": "height",
+        "round": true,
+        "zero": true,
+        "nice": true
+      },
+      {
+        "name": "color",
+        "type": "ordinal",
+        "domain": {"data": "table", "field": "position"},
+        "range": ["#F5C856", "#CC142B", "#00247D", "#007A4D"]
+      }
+    ],
+  
+    "axes": [
+      {
+        "orient": "left", 
+        "scale": "yscale", 
+        "title": "Percentage of Championship Games",
+        "titleColor": "#4d4d4d",
+        "titleFontSize": 12,
+        "titlePadding": 8,
+        "tickSize": 0, 
+        "labelPadding": 4,
+        "labelColor": "#4d4d4d", 
+        "grid": true, 
+        "gridOpacity": 0.5,
+        "domain": false
+      },
+      {
+        "orient": "bottom", 
+        "scale": "xscale", 
+        "labelFontWeight": "bold", 
+        "labelColor": "#4d4d4d",
+        "labelFontSize": 12,
+        "labelOffset": 10,
+        "labelPadding": 6,
+        "tickSize": 0, 
+        "labelAlign": "center",
+        "domain": false
+      }
+    ],
+  
+    "marks": [
+      {
+        "type": "group",
+        "from": {
+          "facet": {
+            "data": "table",
+            "name": "facet",
+            "groupby": "category"
+          }
+        },
+  
+        "encode": {
+          "enter": {
+            "x": {"scale": "xscale", "field": "category"}
+          }
+        },
+  
+        "signals": [
+          {"name": "width", "update": "bandwidth('xscale')"}
+        ],
+  
+        "scales": [
+          {
+            "name": "pos",
+            "type": "band",
+            "range": "width",
+            "domain": {"data": "facet", "field": "position"}
+          }
+        ],
+  
+        "marks": [
+          {
+            "name": "bars",
+            "from": {"data": "facet"},
+            "type": "rect",
+            "encode": {
+              "enter": {
+                "y": {"scale": "yscale", "field": "value"},
+                "y2": {"scale": "yscale", "value": 0},
+                "x": {"scale": "pos", "field": "position"},
+                "width": {"scale": "pos", "band": 1},
+                "fill": {"scale": "color", "field": "position"},
+                "opacity": {"value": 0.8},
+                "tooltip": [
+                    {"field": "Proportion", "type": "nominal"}
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }

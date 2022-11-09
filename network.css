@@ -1,0 +1,10 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 0px;
+    justify-items: center;
+    align-items: end;
+}
+html {background-color: #f5f3f1}
+
+body{font-family: Sans-Serif; text-align: center;}

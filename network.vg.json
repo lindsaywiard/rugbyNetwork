@@ -1,0 +1,265 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "A re-orderable adjacency matrix depicting ...",
+    "width": 100,
+    "height": 100,
+    "padding": 3,
+  
+    "signals": [
+      { "name": "cellSize", "value": 20 },
+      { "name": "count", "update": "length(data('nodes'))" },
+      { "name": "width", "update": "span(range('position'))" },
+      { "name": "height", "update": "width" },
+      { "name": "mid", "update": "width"},
+      {
+        "name": "src", "value": {},
+        "on": [
+          {"events": "text:mouseover", "update": "datum"}
+        ]
+      }
+    ],
+  
+    "data": [
+      {
+        "name": "nodes",
+        "url": "data/teams.json",
+        "format": {"type": "json", "property": "nodes"},
+        "transform": [
+          {
+            "type": "window", "sort": {"field": "group"},
+            "ops": ["row_number"], "as": ["order"]
+          }
+        ]
+      },
+      {
+        "name": "edges",
+        "url": "data/teams.json",
+        "format": {"type": "json", "property": "links"},
+        "transform": [
+          {
+            "type": "lookup", "from": "nodes", "key": "index",
+            "fields": ["source", "target"], "as": ["sourceNode", "targetNode"]
+          },
+          {
+            "type": "formula", "as": "group",
+            "expr": "datum.sourceNode.group === datum.targetNode.group ? datum.sourceNode.group : count"
+          }
+        ]
+      },
+      {
+        "name": "cross",
+        "source": "nodes",
+        "transform": [
+          { "type": "cross" }
+        ]
+      }
+    ],
+  
+    "scales": [
+      {
+        "name": "position",
+        "type": "band",
+        "domain": {"data": "nodes", "field": "order", "sort": true},
+        "range": {"step": {"signal": "cellSize"}}
+      },
+      {
+        "name": "bright",
+        "type": "ordinal",
+        "range": [0.5, 0.9],
+        "domain": {
+          "fields": [
+            {"data": "edges", "field": "value"},
+            {"signal": "count"}
+          ],
+          "sort": true
+        }
+      },
+      {
+        "name": "brightLegend",
+        "type": "ordinal",
+        "range": [0.2, 0.5, 0.9],
+        "domain": [0, 1, 2]
+      }, 
+      {
+        "name": "colorLegend",
+        "type": "ordinal",
+        "range": ["#F5C856", "#CC142B", "#00247D", "#007A4D"],
+        "domain": ["Argentina", "Australia", "New Zealand", "South Africa"]
+      }, 
+      {
+        "name": "textColor",
+        "type": "ordinal",
+        "range": ["#F5C856", "#CC142B", "#00247D", "#007A4D"],
+        "domain": {
+          "fields": [
+            {"data": "nodes", "field": "group"},
+            {"signal": "count"}
+          ],
+          "sort": true
+        }
+      }
+    ],
+  
+    "marks": [
+      {
+        "type": "rect",
+        "from": {"data": "cross"},
+        "encode": {
+          "update": {
+            "x": {"scale": "position", "field": "a.order"},
+            "y": {"scale": "position", "field": "b.order"},
+            "width": {"scale": "position", "band": 1, "offset": -1},
+            "height": {"scale": "position", "band": 1, "offset": -1},
+            "fill": [
+                {"test": "datum.a === src || datum.b === src", "value": "grey"},
+                {"scale": "textColor", "field": "b.group"}
+            ],
+            "opacity": [
+                {"test": "datum.a === src || datum.b === src", "value": 0.15},
+                {"value": 0.2}
+            ]
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "from": {"data": "edges"},
+        "encode": {
+          "update": {
+            "x": {"scale": "position", "field": "sourceNode.order"},
+            "y": {"scale": "position", "field": "targetNode.order"},
+            "width": {"scale": "position", "band": 1, "offset": -1},
+            "height": {"scale": "position", "band": 1, "offset": -1},
+            "fill": [
+                {"scale": "textColor", "field": "sourceNode.group"}
+            ],
+            "opacity": [
+                {"scale": "bright", "field": "value"}
+            ], 
+            "tooltip": {"field": "value", "type": "quantitative"}
+          }
+        }
+      },
+      {
+        "type": "text",
+        "name": "columns",
+        "from": {"data": "nodes"},
+        "encode": {
+          "update": {
+            "x": {"scale": "position", "field": "order", "band": 0.5},
+            "y": {"offset": -2},
+            "text": {"field": "name"},
+            "fontSize": {"value": 10},
+            "fontWeight": {"value": "bold"},
+            "angle": {"value": -90},
+            "align": {"value": "left"},
+            "baseline": {"value": "middle"},
+            "fill": [
+              {"test": "datum === src", "value": "grey"},
+              {"scale": "textColor", "field": "group"}
+            ]
+          }
+        }
+      },
+      {
+        "type": "text",
+        "name": "rows",
+        "from": {"data": "nodes"},
+        "encode": {
+          "update": {
+            "x": {"offset": -2},
+            "y": {"scale": "position", "field": "order", "band": 0.5},
+            "text": {"field": "name"},
+            "fontSize": {"value": 10},
+            "fontWeight": {"value": "bold"},
+            "align": {"value": "right"},
+            "baseline": {"value": "middle"},
+            "fill": [
+                {"test": "datum === src", "value": "grey"},
+                {"scale": "textColor", "field": "group"}
+            ]
+          }
+        }
+      },
+      {
+        "type": "text",
+        "name": "xLabel",
+        "encode": {
+            "update": {
+              "fontWeight": {"value": "bold"},
+              "fill": {"value": "#5E5E5E"},
+              "fontSize": {"value": 14},
+              "x": {"value": 0},
+              "y": {"value": -55},
+              "text": {"value": "Winner"}
+            }
+          }
+      },
+      {
+            "type": "text",
+            "name": "yLabel",
+            "encode": {
+                "update": {
+                  "fontWeight": {"value": "bold"},
+                  "fill": {"value": "#5E5E5E"},
+                  "fontSize": {"value": 14},
+                  "angle": {"value": 270},
+                  "x": {"value": -55},
+                  "y": {"value": 260},
+                  "text": {"value": "Loser"}
+                }
+              }
+      }
+    ],
+    
+    "legends": [
+        {
+            "name": "numWins",
+            "type": "symbol",
+            "symbolType": "square",
+            "symbolFillColor": "#5E5E5E",
+            "symbolStrokeWidth": 0,
+            "title": "Number of Games",
+            "opacity": "brightLegend",
+            "orient": "bottom",
+            "offset": 12,
+            "titleOrient": "left",
+            "titlePadding": 8,
+            "titleColor": {"value": "#4d4d4d"},
+            "labelColor": {"value": "#4d4d4d"},
+            "direction": "horizontal",
+            "titleFontSize": {"value": 12}
+        },
+        {
+            "name": "country",
+            "type": "symbol",
+            "symbolType": "square",
+            "title": "Country",
+            "symbolOpacity": {"value": 0.8},
+            "fill": "colorLegend",
+            "orient": "right",
+            "offset": 20,
+            "titlePadding": 5,
+            "titleOrient": "top",
+            "titleColor": {"value": "#4d4d4d"},
+            "labelColor": {"value": "#4d4d4d"},
+            "titleFontSize": {"value": 12},
+            "direction": "vertical"
+        }
+    ],
+    
+    "config": {
+        "legend": {
+          "layout": {
+            "right": {
+              "anchor": "middle",
+              "direction": "vertical",
+              "margin": 30
+            }, 
+            "bottom": {
+                "anchor": "middle"
+            }
+          }
+        }
+    }
+  }
