@@ -116,7 +116,7 @@
             ],
             "opacity": [
                 {"test": "datum.a === src || datum.b === src", "value": 0.15},
-                {"value": 0.2}
+                {"value": 0.1}
             ]
           }
         }
