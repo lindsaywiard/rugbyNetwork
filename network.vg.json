@@ -111,11 +111,11 @@
             "width": {"scale": "position", "band": 1, "offset": -1},
             "height": {"scale": "position", "band": 1, "offset": -1},
             "fill": [
-                {"test": "datum.a === src || datum.b === src", "value": "grey"},
+                {"test": "datum.a === src || datum.b === src", "value": "#4d4d4d"},
                 {"scale": "textColor", "field": "b.group"}
             ],
             "opacity": [
-                {"test": "datum.a === src || datum.b === src", "value": 0.15},
+                {"test": "datum.a === src || datum.b === src", "value": 0.05},
                 {"value": 0.1}
             ]
           }
